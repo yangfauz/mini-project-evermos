@@ -29,7 +29,7 @@ func (handler *ProductHandler) Route(app *fiber.App) {
 	routes.Get("/:id", middleware.JWTProtected(), handler.ProductDetail)
 	routes.Post("/", middleware.JWTProtected(), handler.ProductCreate)
 	routes.Put("/:id", middleware.JWTProtected(), handler.ProductUpdate)
-	routes.Delete("/:id", middleware.JWTProtected(), handler.ProductDetail)
+	routes.Delete("/:id", middleware.JWTProtected(), handler.ProductDelete)
 }
 
 func (handler *ProductHandler) GetAllProduct(c *fiber.Ctx) error {

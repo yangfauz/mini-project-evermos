@@ -19,3 +19,7 @@ type TrxDetail struct {
 	Store       Store      `gorm:"foreignKey:IDToko"`
 	ProductLog  ProductLog `gorm:"foreignKey:IDLogProduk"`
 }
+
+func (TrxDetail) TableName() string {
+	return "detail_trx"
+}

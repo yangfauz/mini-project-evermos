@@ -15,3 +15,7 @@ type Store struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
+
+func (Store) TableName() string {
+	return "toko"
+}

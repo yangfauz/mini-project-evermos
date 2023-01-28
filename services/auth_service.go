@@ -73,7 +73,7 @@ func (service *authServiceImpl) Login(input models.LoginRequest) (models.LoginRe
 	check_user, err := service.repositoryUser.FindByNoTelp(no_telp)
 
 	if err != nil {
-		return models.LoginResponse{}, errors.New("Email Not Found")
+		return models.LoginResponse{}, errors.New("No Telp Not Found")
 	}
 
 	//check login

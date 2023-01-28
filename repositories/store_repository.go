@@ -50,6 +50,7 @@ func (repository *storeRepositoryImpl) FindAllPagination(pagination responder.Pa
 		storeFormatter := models.StoreResponse{}
 		storeFormatter.ID = store.ID
 		storeFormatter.NamaToko = store.NamaToko
+		storeFormatter.UrlFoto = store.UrlFoto
 
 		storesFormatter = append(storesFormatter, storeFormatter)
 	}

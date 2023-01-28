@@ -13,3 +13,7 @@ type Category struct {
 	CreatedAt    *time.Time
 	UpdatedAt    *time.Time
 }
+
+func (Category) TableName() string {
+	return "category"
+}

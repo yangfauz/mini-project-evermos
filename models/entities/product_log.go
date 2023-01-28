@@ -23,3 +23,7 @@ type ProductLog struct {
 	Category      Category `gorm:"foreignKey:IDCategory"`
 	Product       Product  `gorm:"foreignKey:IDProduk"`
 }
+
+func (ProductLog) TableName() string {
+	return "log_produk"
+}

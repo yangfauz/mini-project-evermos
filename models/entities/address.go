@@ -18,3 +18,7 @@ type Address struct {
 	UpdatedAt    *time.Time
 	User         User `gorm:"foreignKey:IDUser"`
 }
+
+func (Address) TableName() string {
+	return "alamat"
+}

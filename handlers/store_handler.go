@@ -218,6 +218,6 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 		Status:  true,
 		Message: "Succeed to PUT data",
 		Error:   nil,
-		Data:    response,
+		Data:    true,
 	})
 }

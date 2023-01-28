@@ -39,7 +39,7 @@ func (handler *AuthHandler) Register(c *fiber.Ctx) error {
 			return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
 				Status:  false,
 				Message: "Failed to POST data",
-				Error:   exceptions.NewString("Email Registered, Please Login"),
+				Error:   exceptions.NewString("No Telp Registered, Please Login"),
 				Data:    nil,
 			})
 		}

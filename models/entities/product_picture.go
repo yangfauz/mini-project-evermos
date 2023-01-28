@@ -14,3 +14,7 @@ type ProductPicture struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
+
+func (ProductPicture) TableName() string {
+	return "foto_produk"
+}

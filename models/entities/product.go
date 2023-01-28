@@ -23,3 +23,7 @@ type Product struct {
 	Category       Category         `gorm:"foreignKey:IDCategory"`
 	ProductPicture []ProductPicture `gorm:"foreignKey:IDProduk"`
 }
+
+func (Product) TableName() string {
+	return "produk"
+}

@@ -20,3 +20,7 @@ type Trx struct {
 	User             User        `gorm:"foreignKey:IDUser"`
 	TrxDetail        []TrxDetail `gorm:"foreignKey:IDTrx"`
 }
+
+func (Trx) TableName() string {
+	return "trx"
+}
