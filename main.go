@@ -47,7 +47,7 @@ func main() {
 	categoryService := services.NewCategoryService(&categoryRepository)
 	storeService := services.NewStoreService(&storeRepository)
 	productService := services.NewProductService(&productRepository, &storeRepository, &productPictureRepository)
-	transactionService := services.NewTransactionService(&transactionRepository, &productRepository)
+	transactionService := services.NewTransactionService(&transactionRepository, &productRepository, &addressRepository)
 
 	// Setup Handler
 	authHandler := handlers.NewAuthHandler(&authService)

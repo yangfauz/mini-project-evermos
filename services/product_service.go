@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"mini-project-evermos/models"
 	"mini-project-evermos/models/responder"
 	"mini-project-evermos/repositories"
@@ -10,10 +11,10 @@ import (
 // Contract
 type ProductService interface {
 	GetAll(limit int, page int, keyword string) (responder.Pagination, error)
-	GetById(id uint) (models.ProductResponse, error)
+	GetById(id uint, user_id uint) (models.ProductResponse, error)
 	Create(input models.ProductRequest, user_id uint) (bool, error)
 	Update(input models.ProductRequest, id uint, user_id uint) (bool, error)
-	Delete(id uint) (bool, error)
+	Delete(id uint, user_id uint) (bool, error)
 }
 
 type productServiceImpl struct {
@@ -44,11 +45,15 @@ func (service *productServiceImpl) GetAll(limit int, page int, keyword string) (
 	return response, nil
 }
 
-func (service *productServiceImpl) GetById(id uint) (models.ProductResponse, error) {
+func (service *productServiceImpl) GetById(id uint, user_id uint) (models.ProductResponse, error) {
 	product, err := service.repository.FindById(id)
 
 	if err != nil {
 		return models.ProductResponse{}, err
+	}
+
+	if product.Store.IDUser != user_id {
+		return models.ProductResponse{}, errors.New("forbidden")
 	}
 
 	var response = models.ProductResponse{}
@@ -101,6 +106,19 @@ func (service *productServiceImpl) Create(input models.ProductRequest, user_id u
 }
 
 func (service *productServiceImpl) Update(input models.ProductRequest, id uint, user_id uint) (bool, error) {
+	product, err := service.repository.FindById(id)
+
+	if err != nil {
+		return false, err
+	}
+
+	if product.Store.IDUser != user_id {
+		for _, v := range input.Photos {
+			os.Remove("uploads/" + v)
+		}
+		return false, errors.New("forbidden")
+	}
+
 	picture, err := service.repositoryProductPicture.FindByProductId(id)
 
 	update, err := service.repository.Update(input, id)
@@ -119,12 +137,16 @@ func (service *productServiceImpl) Update(input models.ProductRequest, id uint, 
 	return update, nil
 }
 
-func (service *productServiceImpl) Delete(id uint) (bool, error) {
+func (service *productServiceImpl) Delete(id uint, user_id uint) (bool, error) {
 	//check
-	_, err := service.repository.FindById(id)
+	product, err := service.repository.FindById(id)
 
 	if err != nil {
 		return false, err
+	}
+
+	if product.Store.IDUser != user_id {
+		return false, errors.New("forbidden")
 	}
 
 	//delete role

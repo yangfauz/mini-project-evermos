@@ -12,6 +12,7 @@ import (
 type TokenMetadata struct {
 	Expires int64
 	UserId  int64
+	IsAdmin bool
 }
 
 // ExtractTokenMetadata func to extract metadata from JWT.
@@ -27,10 +28,12 @@ func ExtractTokenMetadata(c *fiber.Ctx) (*TokenMetadata, error) {
 		// Expires time.
 		expires := int64(claims["exp"].(float64))
 		user_id := int64(claims["user_id"].(float64))
+		is_admin := claims["is_admin"].(bool)
 
 		return &TokenMetadata{
 			Expires: expires,
 			UserId:  user_id,
+			IsAdmin: is_admin,
 		}, nil
 	}
 
@@ -38,6 +41,8 @@ func ExtractTokenMetadata(c *fiber.Ctx) (*TokenMetadata, error) {
 }
 
 func extractToken(c *fiber.Ctx) string {
+	// bearToken := c.Get("token")
+
 	bearToken := c.Get("Authorization")
 
 	// Normally Authorization HTTP header.

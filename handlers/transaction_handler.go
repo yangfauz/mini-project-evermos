@@ -71,6 +71,20 @@ func (handler *TransactionHandler) GetAllTransaction(c *fiber.Ctx) error {
 }
 
 func (handler *TransactionHandler) DetailTransaction(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to POST data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -81,7 +95,7 @@ func (handler *TransactionHandler) DetailTransaction(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := handler.TransactionService.GetById(uint(id))
+	response, err := handler.TransactionService.GetById(uint(id), uint(user_id))
 	if err != nil {
 		//error
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{

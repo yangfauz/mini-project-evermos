@@ -13,7 +13,7 @@ import (
 type StoreService interface {
 	GetAll(limit int, page int, keyword string) (responder.Pagination, error)
 	GetByUserId(id uint) (models.StoreResponse, error)
-	GetById(id uint) (models.StoreResponse, error)
+	GetById(id uint, user_id uint) (models.StoreResponse, error)
 	Edit(input models.StoreProcess) (string, error)
 }
 
@@ -57,11 +57,15 @@ func (service *storeServiceImpl) GetByUserId(user_id uint) (models.StoreResponse
 	return response, nil
 }
 
-func (service *storeServiceImpl) GetById(id uint) (models.StoreResponse, error) {
+func (service *storeServiceImpl) GetById(id uint, user_id uint) (models.StoreResponse, error) {
 	store, err := service.repository.FindById(id)
 
 	if err != nil {
 		return models.StoreResponse{}, err
+	}
+
+	if store.IDUser != user_id {
+		return models.StoreResponse{}, errors.New("forbidden")
 	}
 
 	var response = models.StoreResponse{}

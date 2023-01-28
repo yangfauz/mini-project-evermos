@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"mini-project-evermos/models"
 	"mini-project-evermos/models/responder"
 	"mini-project-evermos/repositories"
@@ -11,19 +12,21 @@ import (
 // Contract
 type TransactionService interface {
 	GetAll(limit int, page int, keyword string) (responder.Pagination, error)
-	GetById(id uint) (models.TransactionResponse, error)
+	GetById(id uint, user_id uint) (models.TransactionResponse, error)
 	Create(input models.TransactionRequest, user_id uint) (bool, error)
 }
 
 type transactionServiceImpl struct {
 	repository        repositories.TransactionRepository
 	repositoryProduct repositories.ProductRepository
+	repositoryAddress repositories.AddressRepository
 }
 
-func NewTransactionService(transactionRepository *repositories.TransactionRepository, productRepository *repositories.ProductRepository) TransactionService {
+func NewTransactionService(transactionRepository *repositories.TransactionRepository, productRepository *repositories.ProductRepository, addressRepository *repositories.AddressRepository) TransactionService {
 	return &transactionServiceImpl{
 		repository:        *transactionRepository,
 		repositoryProduct: *productRepository,
+		repositoryAddress: *addressRepository,
 	}
 }
 
@@ -42,6 +45,13 @@ func (service *transactionServiceImpl) GetAll(limit int, page int, keyword strin
 }
 
 func (service *transactionServiceImpl) Create(input models.TransactionRequest, user_id uint) (bool, error) {
+	//check alamat
+	check_address, err := service.repositoryAddress.FindById(input.AlamatKirim)
+
+	if check_address.IDUser != user_id {
+		return false, errors.New("forbidden")
+	}
+
 	date_now := time.Now()
 	string_date := date_now.Format("2006-01-02-15-04-05")
 	invoice := "INV" + string_date
@@ -99,11 +109,15 @@ func (service *transactionServiceImpl) Create(input models.TransactionRequest, u
 	return true, nil
 }
 
-func (service *transactionServiceImpl) GetById(id uint) (models.TransactionResponse, error) {
+func (service *transactionServiceImpl) GetById(id uint, user_id uint) (models.TransactionResponse, error) {
 	transaction, err := service.repository.FindById(id)
 
 	if err != nil {
 		return models.TransactionResponse{}, err
+	}
+
+	if transaction.Address.IDUser != user_id {
+		return models.TransactionResponse{}, errors.New("forbidden")
 	}
 
 	var response = models.TransactionResponse{}

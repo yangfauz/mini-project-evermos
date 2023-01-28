@@ -106,6 +106,20 @@ func (handler *StoreHandler) GetAllStore(c *fiber.Ctx) error {
 }
 
 func (handler *StoreHandler) StoreDetail(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to GET data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
 	id, err := c.ParamsInt("id_toko")
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -116,7 +130,7 @@ func (handler *StoreHandler) StoreDetail(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := handler.StoreService.GetById(uint(id))
+	response, err := handler.StoreService.GetById(uint(id), uint(user_id))
 	if err != nil {
 		//error
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -141,7 +155,7 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 		// Return status 500 and JWT parse error.
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
 			Status:  false,
-			Message: "Failed to GET data",
+			Message: "Failed to PUT data",
 			Error:   exceptions.NewString(err.Error()),
 			Data:    nil,
 		})
@@ -153,7 +167,7 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
 			Status:  false,
-			Message: "Failed to GET data",
+			Message: "Failed to PUT data",
 			Error:   exceptions.NewString(err.Error()),
 			Data:    nil,
 		})
@@ -164,7 +178,7 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
 			Status:  false,
-			Message: "Failed to GET data",
+			Message: "Failed to PUT data",
 			Error:   exceptions.NewString(err.Error()),
 			Data:    nil,
 		})
@@ -181,18 +195,9 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 	response, err := handler.StoreService.Edit(input)
 
 	if err != nil {
-		//error
-		if err.Error() == "forbidden" {
-			return c.Status(http.StatusForbidden).JSON(responder.ApiResponse{
-				Status:  false,
-				Message: "Failed to GET data",
-				Error:   exceptions.NewString("Forbidden to Action"),
-				Data:    nil,
-			})
-		}
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
 			Status:  false,
-			Message: "Failed to GET data",
+			Message: "Failed to PUT data",
 			Error:   exceptions.NewString(err.Error()),
 			Data:    nil,
 		})
@@ -203,7 +208,7 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 	if saveFile != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
 			Status:  false,
-			Message: "Failed to GET data",
+			Message: "Failed to PUT data",
 			Error:   exceptions.NewString(saveFile.Error()),
 			Data:    nil,
 		})
@@ -211,7 +216,7 @@ func (handler *StoreHandler) EditStore(c *fiber.Ctx) error {
 
 	return c.Status(http.StatusOK).JSON(responder.ApiResponse{
 		Status:  true,
-		Message: "Succeed to GET data",
+		Message: "Succeed to PUT data",
 		Error:   nil,
 		Data:    response,
 	})

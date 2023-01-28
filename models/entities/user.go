@@ -19,7 +19,7 @@ type User struct {
 	Email        string    `gorm:"size:255;not null;index:idx_email,unique"`
 	IDProvinsi   string    `gorm:"size:255;not null"`
 	IDKota       string    `gorm:"size:255;not null"`
-	IsAdmin      bool      `gorm:"default:false"`
+	IsAdmin      bool      `gorm:"type:boolean;default:false"`
 	CreatedAt    *time.Time
 	UpdatedAt    *time.Time
 }

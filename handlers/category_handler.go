@@ -21,11 +21,11 @@ func NewCategoryHandler(categoryService *services.CategoryService) CategoryHandl
 
 func (handler *CategoryHandler) Route(app *fiber.App) {
 	routes := app.Group("/api/v1/category")
-	routes.Get("/", middleware.JWTProtected(), handler.CategoryList)
-	routes.Get("/:id", middleware.JWTProtected(), handler.CategoryDetail)
-	routes.Post("/", middleware.JWTProtected(), handler.CategoryCreate)
-	routes.Put("/:id", middleware.JWTProtected(), handler.CategoryEdit)
-	routes.Delete("/:id", middleware.JWTProtected(), handler.CategoryDelete)
+	routes.Get("/", middleware.JWTProtected(), middleware.RolePermissionAdmin, handler.CategoryList)
+	routes.Get("/:id", middleware.JWTProtected(), middleware.RolePermissionAdmin, handler.CategoryDetail)
+	routes.Post("/", middleware.JWTProtected(), middleware.RolePermissionAdmin, handler.CategoryCreate)
+	routes.Put("/:id", middleware.JWTProtected(), middleware.RolePermissionAdmin, handler.CategoryEdit)
+	routes.Delete("/:id", middleware.JWTProtected(), middleware.RolePermissionAdmin, handler.CategoryDelete)
 }
 
 func (handler *CategoryHandler) CategoryList(c *fiber.Ctx) error {
