@@ -32,17 +32,32 @@ func main() {
 	// Setup Repository
 	authRepository := repositories.NewAuthRepository(database)
 	userRepository := repositories.NewUserRepository(database)
+	addressRepository := repositories.NewAddressRepository(database)
 	categoryRepository := repositories.NewCategoryRepository(database)
+	storeRepository := repositories.NewStoreRepository(database)
+	productRepository := repositories.NewProductRepository(database)
+	productPictureRepository := repositories.NewProductPictureRepository(database)
+	transactionRepository := repositories.NewTransactionRepository(database)
 
 	// Setup Service
 	authService := services.NewAuthService(&authRepository, &userRepository)
+	userService := services.NewUserService(&userRepository)
+	addressService := services.NewAddressService(&addressRepository)
 	regionService := services.NewRegionService()
 	categoryService := services.NewCategoryService(&categoryRepository)
+	storeService := services.NewStoreService(&storeRepository)
+	productService := services.NewProductService(&productRepository, &storeRepository, &productPictureRepository)
+	transactionService := services.NewTransactionService(&transactionRepository, &productRepository)
 
 	// Setup Handler
 	authHandler := handlers.NewAuthHandler(&authService)
+	userHandler := handlers.NewUserHandler(&userService)
+	addressHandler := handlers.NewAddressHandler(&addressService)
 	regionHandler := handlers.NewRegionHandler(&regionService)
 	categoryHandler := handlers.NewCategoryHandler(&categoryService)
+	storeHandler := handlers.NewStoreHandler(&storeService)
+	productHandler := handlers.NewProductHandler(&productService)
+	transactionHandler := handlers.NewTransactionHandler(&transactionService)
 
 	// Setup Fiber
 	app := fiber.New(configs.NewFiberConfig())
@@ -59,7 +74,7 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Status(http.StatusOK).JSON(responder.ApiResponse{
 			Status:  true,
-			Message: "Mini Project Evermos",
+			Message: configuration.Get("APP_NAME"),
 			Error:   nil,
 			Data:    nil,
 		})
@@ -67,8 +82,13 @@ func main() {
 
 	// Setup Routing
 	authHandler.Route(app)
+	userHandler.Route(app)
+	addressHandler.Route(app)
 	regionHandler.Route(app)
 	categoryHandler.Route(app)
+	storeHandler.Route(app)
+	productHandler.Route(app)
+	transactionHandler.Route(app)
 
 	//Not Found in Last
 	app.Use(func(c *fiber.Ctx) error {
@@ -83,7 +103,7 @@ func main() {
 	chanServer := make(chan os.Signal, 1)
 	signal.Notify(chanServer, syscall.SIGTERM, syscall.SIGINT, os.Interrupt)
 
-	host := ":3000"
+	host := ":" + configuration.Get("APP_PORT")
 	go func() {
 		<-chanServer
 

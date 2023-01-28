@@ -16,6 +16,7 @@ type Trx struct {
 	MethodBayar      string `gorm:"size:255;not null"`
 	CreatedAt        *time.Time
 	UpdatedAt        *time.Time
-	User             User    `gorm:"foreignKey:IDUser"`
-	Address          Address `gorm:"foreignKey:AlamatPengiriman"`
+	Address          Address     `gorm:"foreignKey:AlamatPengiriman"`
+	User             User        `gorm:"foreignKey:IDUser"`
+	TrxDetail        []TrxDetail `gorm:"foreignKey:IDTrx"`
 }

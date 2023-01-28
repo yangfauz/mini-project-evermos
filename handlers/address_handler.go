@@ -6,30 +6,45 @@ import (
 	"mini-project-evermos/models"
 	"mini-project-evermos/models/responder"
 	"mini-project-evermos/services"
+	"mini-project-evermos/utils/jwt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 )
 
-type CategoryHandler struct {
-	CategoryService services.CategoryService
+type AddressHandler struct {
+	AddressService services.AddressService
 }
 
-func NewCategoryHandler(categoryService *services.CategoryService) CategoryHandler {
-	return CategoryHandler{*categoryService}
+func NewAddressHandler(addressService *services.AddressService) AddressHandler {
+	return AddressHandler{*addressService}
 }
 
-func (handler *CategoryHandler) Route(app *fiber.App) {
-	routes := app.Group("/api/v1/category")
-	routes.Get("/", middleware.JWTProtected(), handler.CategoryList)
-	routes.Get("/:id", middleware.JWTProtected(), handler.CategoryDetail)
-	routes.Post("/", middleware.JWTProtected(), handler.CategoryCreate)
-	routes.Put("/:id", middleware.JWTProtected(), handler.CategoryEdit)
-	routes.Delete("/:id", middleware.JWTProtected(), handler.CategoryDelete)
+func (handler *AddressHandler) Route(app *fiber.App) {
+	routes := app.Group("/api/v1/user/alamat")
+	routes.Get("/", middleware.JWTProtected(), handler.AddressList)
+	routes.Get("/:id", middleware.JWTProtected(), handler.AddressDetail)
+	routes.Post("/", middleware.JWTProtected(), handler.AddressCreate)
+	routes.Put("/:id", middleware.JWTProtected(), handler.AddressEdit)
+	routes.Delete("/:id", middleware.JWTProtected(), handler.AddressDelete)
 }
 
-func (handler *CategoryHandler) CategoryList(c *fiber.Ctx) error {
-	responses, err := handler.CategoryService.GetAll()
+func (handler *AddressHandler) AddressList(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to GET data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
+	responses, err := handler.AddressService.GetAll(uint(user_id))
 	if err != nil {
 		//error
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -47,7 +62,21 @@ func (handler *CategoryHandler) CategoryList(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *CategoryHandler) CategoryDetail(c *fiber.Ctx) error {
+func (handler *AddressHandler) AddressDetail(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to GET data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -58,7 +87,7 @@ func (handler *CategoryHandler) CategoryDetail(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := handler.CategoryService.GetById(uint(id))
+	response, err := handler.AddressService.GetById(uint(id), uint(user_id))
 	if err != nil {
 		//error
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -76,9 +105,23 @@ func (handler *CategoryHandler) CategoryDetail(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *CategoryHandler) CategoryCreate(c *fiber.Ctx) error {
-	var input models.CategoryRequest
-	err := c.BodyParser(&input)
+func (handler *AddressHandler) AddressCreate(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to GET data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
+	var input models.AddressRequest
+	err = c.BodyParser(&input)
 
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -89,7 +132,7 @@ func (handler *CategoryHandler) CategoryCreate(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := handler.CategoryService.Create(input)
+	response, err := handler.AddressService.Create(input, uint(user_id))
 
 	if err != nil {
 		//error
@@ -108,7 +151,21 @@ func (handler *CategoryHandler) CategoryCreate(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *CategoryHandler) CategoryEdit(c *fiber.Ctx) error {
+func (handler *AddressHandler) AddressEdit(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to GET data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -119,7 +176,7 @@ func (handler *CategoryHandler) CategoryEdit(c *fiber.Ctx) error {
 		})
 	}
 
-	var input models.CategoryRequest
+	var input models.AddressRequest
 	err = c.BodyParser(&input)
 
 	if err != nil {
@@ -131,7 +188,7 @@ func (handler *CategoryHandler) CategoryEdit(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := handler.CategoryService.Edit(uint(id), input)
+	response, err := handler.AddressService.Edit(uint(id), input, uint(user_id))
 
 	if err != nil {
 		//error
@@ -150,7 +207,21 @@ func (handler *CategoryHandler) CategoryEdit(c *fiber.Ctx) error {
 	})
 }
 
-func (handler *CategoryHandler) CategoryDelete(c *fiber.Ctx) error {
+func (handler *AddressHandler) AddressDelete(c *fiber.Ctx) error {
+	//claim
+	claims, err := jwt.ExtractTokenMetadata(c)
+	if err != nil {
+		// Return status 500 and JWT parse error.
+		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
+			Status:  false,
+			Message: "Failed to GET data",
+			Error:   exceptions.NewString(err.Error()),
+			Data:    nil,
+		})
+	}
+
+	user_id := claims.UserId
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return c.Status(http.StatusBadRequest).JSON(responder.ApiResponse{
@@ -161,7 +232,7 @@ func (handler *CategoryHandler) CategoryDelete(c *fiber.Ctx) error {
 		})
 	}
 
-	response, err := handler.CategoryService.Delete(uint(id))
+	response, err := handler.AddressService.Delete(uint(id), uint(user_id))
 
 	if err != nil {
 		//error

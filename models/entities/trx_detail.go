@@ -16,7 +16,6 @@ type TrxDetail struct {
 	HargaTotal  int  `gorm:"not null"`
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
-	Trx         Trx        `gorm:"foreignKey:IDTrx"`
-	ProductLog  ProductLog `gorm:"foreignKey:IDLogProduk"`
 	Store       Store      `gorm:"foreignKey:IDToko"`
+	ProductLog  ProductLog `gorm:"foreignKey:IDLogProduk"`
 }

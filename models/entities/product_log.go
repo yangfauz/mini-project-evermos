@@ -21,4 +21,5 @@ type ProductLog struct {
 	UpdatedAt     *time.Time
 	Store         Store    `gorm:"foreignKey:IDToko"`
 	Category      Category `gorm:"foreignKey:IDCategory"`
+	Product       Product  `gorm:"foreignKey:IDProduk"`
 }

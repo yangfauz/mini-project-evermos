@@ -15,7 +15,7 @@ func Migration(database *gorm.DB) {
 		&entities.ProductPicture{},
 		&entities.ProductLog{},
 		&entities.Address{},
-		&entities.TrxDetail{},
 		&entities.Trx{},
+		&entities.TrxDetail{},
 	)
 }

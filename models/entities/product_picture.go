@@ -13,5 +13,4 @@ type ProductPicture struct {
 	Url       string `gorm:"size:255;not null"`
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
-	Product   Product `gorm:"foreignKey:IDProduk"`
 }
