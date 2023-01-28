@@ -49,7 +49,7 @@ func (handler *TransactionHandler) GetAllTransaction(c *fiber.Ctx) error {
 		})
 	}
 
-	keyword := c.FormValue("keyword")
+	keyword := c.FormValue("search")
 
 	responses, err := handler.TransactionService.GetAll(limit, page, keyword)
 

@@ -28,16 +28,16 @@ func (repository *storeRepositoryImpl) FindAllPagination(pagination responder.Pa
 	var stores []entities.Store
 
 	keyword := "%" + pagination.Keyword + "%"
-	// where_value := func(keyword string) *gorm.DB {
-	// 	return repository.database.Where("nama_toko LIKE ?", keyword)
-	// }
 
-	// err := where_value(keyword).
-	// 	Scopes(responder.PaginationFormat(keyword, stores, &pagination, where_value(keyword))).
-	// 	Find(&stores).Error
+	where_value := func(keyword string) *gorm.DB {
+		if keyword != "" {
+			return repository.database.Where("nama_toko LIKE ?", keyword)
+		}
+		return repository.database
+	}
 
-	err := repository.database.
-		Scopes(responder.PaginationFormat(keyword, stores, &pagination, repository.database)).
+	err := where_value(keyword).
+		Scopes(responder.PaginationFormat(keyword, stores, &pagination, where_value(keyword))).
 		Find(&stores).Error
 
 	if err != nil {

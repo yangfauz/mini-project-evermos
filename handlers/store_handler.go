@@ -84,7 +84,7 @@ func (handler *StoreHandler) GetAllStore(c *fiber.Ctx) error {
 		})
 	}
 
-	keyword := c.FormValue("keyword")
+	keyword := c.FormValue("nama")
 
 	responses, err := handler.StoreService.GetAll(limit, page, keyword)
 

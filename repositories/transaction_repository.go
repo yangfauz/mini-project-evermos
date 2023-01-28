@@ -27,15 +27,14 @@ func (repository *transactionRepositoryImpl) FindAllPagination(pagination respon
 	var transactions []entities.Trx
 
 	keyword := "%" + pagination.Keyword + "%"
-	// where_value := func(keyword string) *gorm.DB {
-	// 	return repository.database.Where("nama_toko LIKE ?", keyword)
-	// }
+	where_value := func(keyword string) *gorm.DB {
+		if keyword != "" {
+			return repository.database.Where("kode_invoice LIKE ?", keyword).Or("method_bayar LIKE ?", keyword)
+		}
+		return repository.database
+	}
 
-	// err := where_value(keyword).
-	// 	Scopes(responder.PaginationFormat(keyword, stores, &pagination, where_value(keyword))).
-	// 	Find(&stores).Error
-
-	err := repository.database.
+	err := where_value(keyword).
 		Preload("Address").
 		Preload("TrxDetail").
 		Preload("TrxDetail.Store").
@@ -43,7 +42,7 @@ func (repository *transactionRepositoryImpl) FindAllPagination(pagination respon
 		Preload("TrxDetail.ProductLog.Product.Store").
 		Preload("TrxDetail.ProductLog.Product.Category").
 		Preload("TrxDetail.ProductLog.Product.ProductPicture").
-		Scopes(responder.PaginationFormat(keyword, transactions, &pagination, repository.database)).
+		Scopes(responder.PaginationFormat(keyword, transactions, &pagination, where_value(keyword))).
 		Find(&transactions).Error
 
 	if err != nil {
